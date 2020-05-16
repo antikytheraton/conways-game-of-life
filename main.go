@@ -31,7 +31,7 @@ const (
 
 var (
 	triangle = []float32{
-		0, 0.5, 0, // top
+		-0.5, 0.5, 0, // top
 		-0.5, -0.5, 0, // left
 		0.5, -0.5, 0, //right
 	}
@@ -42,14 +42,23 @@ func main() {
 
 	window := initGlfw()
 	defer glfw.Terminate()
-
 	program := initOpenGl()
 
 	vao := makeVao(triangle)
-
 	for !window.ShouldClose() {
 		draw(vao, window, program)
 	}
+}
+
+func draw(vao uint32, window *glfw.Window, program uint32) {
+	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+	gl.UseProgram(program)
+
+	gl.BindVertexArray(vao)
+	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(triangle)/3))
+
+	glfw.PollEvents()
+	window.SwapBuffers()
 }
 
 // initGlfw initializes glfw and returns a Window to use
@@ -95,17 +104,6 @@ func initOpenGl() uint32 {
 	gl.AttachShader(prog, fragmentShader)
 	gl.LinkProgram(prog)
 	return prog
-}
-
-func draw(vao uint32, window *glfw.Window, program uint32) {
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	gl.UseProgram(program)
-
-	gl.BindVertexArray(vao)
-	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(triangle)/3))
-
-	glfw.PollEvents()
-	window.SwapBuffers()
 }
 
 // makeVao (Vertex Array Object) initializes and returns a vertex
