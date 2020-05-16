@@ -17,10 +17,15 @@ const (
 	height = 500
 
 	threshold = 0.15
-	fps       = 35
+	fps       = 60
 )
 
 var (
+	triangle = []float32{
+		0, 0.5, 0,
+		-0.5, -0.5, 0,
+		0.5, -0.5, 0,
+	}
 	square = []float32{
 		-0.5, 0.5, 0,
 		-0.5, -0.5, 0,
@@ -30,8 +35,8 @@ var (
 		0.5, 0.5, 0,
 		0.5, -0.5, 0,
 	}
-	rows    = 100
-	columns = 100
+	rows    = 50
+	columns = 50
 )
 
 func main() {
@@ -41,6 +46,7 @@ func main() {
 	defer glfw.Terminate()
 	program := graphic.InitOpenGL()
 
+	cellShape := square
 	cells := makeCells()
 	for !window.ShouldClose() {
 		t := time.Now()
@@ -51,7 +57,7 @@ func main() {
 			}
 		}
 
-		draw.Draw(cells, square, window, program)
+		draw.Draw(cells, cellShape, window, program)
 
 		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
 	}
@@ -74,8 +80,12 @@ func makeCells() [][]*cell.Cell {
 }
 
 func newCell(x, y int) *cell.Cell {
-	points := make([]float32, len(square), len(square))
-	copy(points, square)
+	shapes := [][]float32{
+		triangle, square,
+	}
+	shape := shapes[rand.Intn((len(shapes)))]
+	points := make([]float32, len(shape), len(shape))
+	copy(points, shape)
 
 	for i := 0; i < len(points); i++ {
 		var position float32
