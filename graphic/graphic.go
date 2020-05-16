@@ -10,8 +10,6 @@ import (
 )
 
 const (
-	width              = 500
-	height             = 500
 	vertexShaderSource = `
 		#version 410
 		in vec3 vp;
@@ -29,7 +27,7 @@ const (
 )
 
 // InitGlfw initializes glfw and returns a Window to use
-func InitGlfw() *glfw.Window {
+func InitGlfw(width, height int) *glfw.Window {
 	if err := glfw.Init(); err != nil {
 		panic(err)
 	}

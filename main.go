@@ -3,10 +3,16 @@ package main
 import (
 	"runtime"
 
+	"github/antikytheraton/conways-game-of-life/cell"
+	"github/antikytheraton/conways-game-of-life/draw"
 	"github/antikytheraton/conways-game-of-life/graphic"
 
-	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
+)
+
+const (
+	width  = 500
+	height = 500
 )
 
 var (
@@ -26,30 +32,18 @@ var (
 func main() {
 	runtime.LockOSThread()
 
-	window := graphic.InitGlfw()
+	window := graphic.InitGlfw(width, height)
 	defer glfw.Terminate()
 	program := graphic.InitOpenGL()
 
 	cells := makeCells()
 	for !window.ShouldClose() {
-		draw(cells, window, program)
+		draw.Draw(cells, square, window, program)
 	}
 }
 
-type cell struct {
-	drawable uint32
-
-	x int
-	y int
-}
-
-func (c *cell) draw() {
-	gl.BindVertexArray(c.drawable)
-	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(square)/3))
-}
-
-func makeCells() [][]*cell {
-	cells := make([][]*cell, rows, rows)
+func makeCells() [][]*cell.Cell {
+	cells := make([][]*cell.Cell, rows, rows)
 	for x := 0; x < rows; x++ {
 		for y := 0; y < columns; y++ {
 			c := newCell(x, y)
@@ -60,7 +54,7 @@ func makeCells() [][]*cell {
 	return cells
 }
 
-func newCell(x, y int) *cell {
+func newCell(x, y int) *cell.Cell {
 	points := make([]float32, len(square), len(square))
 	copy(points, square)
 
@@ -85,42 +79,10 @@ func newCell(x, y int) *cell {
 		}
 	}
 
-	return &cell{
-		drawable: makeVao(points),
+	return &cell.Cell{
+		Drawable: draw.MakeVao(points),
 
-		x: x,
-		y: y,
+		X: x,
+		Y: y,
 	}
-}
-
-func draw(cells [][]*cell, window *glfw.Window, program uint32) {
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-	gl.UseProgram(program)
-
-	for x := range cells {
-		for _, c := range cells[x] {
-			c.draw()
-		}
-	}
-
-	glfw.PollEvents()
-	window.SwapBuffers()
-}
-
-// makeVao (Vertex Array Object) initializes and returns a vertex
-// array from the points provided
-func makeVao(points []float32) uint32 {
-	var vbo uint32 // Vertex Buffer Object
-	gl.GenBuffers(1, &vbo)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, 4*len(points), gl.Ptr(points), gl.STATIC_DRAW)
-
-	var vao uint32
-	gl.GenVertexArrays(1, &vao)
-	gl.BindVertexArray(vao)
-	gl.EnableVertexAttribArray(0)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
-
-	return vao
 }
