@@ -30,11 +30,16 @@ const (
 )
 
 var (
-	triangle = []float32{
-		-0.5, 0.5, 0, // top
-		-0.5, -0.5, 0, // left
-		0.5, -0.5, 0, //right
+	square = []float32{
+		-0.5, 0.5, 0,
+		-0.5, -0.5, 0,
+		0.5, -0.5, 0,
+
+		-0.5, 0.5, 0,
+		0.5, 0.5, 0,
+		0.5, -0.5, 0,
 	}
+	shapeCount = int32(len(square) / 3)
 )
 
 func main() {
@@ -44,18 +49,18 @@ func main() {
 	defer glfw.Terminate()
 	program := initOpenGl()
 
-	vao := makeVao(triangle)
+	vao := makeVao(square)
 	for !window.ShouldClose() {
-		draw(vao, window, program)
+		draw(vao, shapeCount, window, program)
 	}
 }
 
-func draw(vao uint32, window *glfw.Window, program uint32) {
+func draw(vao uint32, count int32, window *glfw.Window, program uint32) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.UseProgram(program)
 
 	gl.BindVertexArray(vao)
-	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(triangle)/3))
+	gl.DrawArrays(gl.TRIANGLES, 0, count)
 
 	glfw.PollEvents()
 	window.SwapBuffers()
