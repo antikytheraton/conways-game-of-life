@@ -1,7 +1,9 @@
 package main
 
 import (
+	"math/rand"
 	"runtime"
+	"time"
 
 	"github/antikytheraton/conways-game-of-life/cell"
 	"github/antikytheraton/conways-game-of-life/draw"
@@ -13,6 +15,9 @@ import (
 const (
 	width  = 500
 	height = 500
+
+	threshold = 0.15
+	fps       = 35
 )
 
 var (
@@ -25,8 +30,8 @@ var (
 		0.5, 0.5, 0,
 		0.5, -0.5, 0,
 	}
-	rows    = 10
-	columns = 10
+	rows    = 100
+	columns = 100
 )
 
 func main() {
@@ -38,7 +43,17 @@ func main() {
 
 	cells := makeCells()
 	for !window.ShouldClose() {
+		t := time.Now()
+
+		for x := range cells {
+			for _, c := range cells[x] {
+				c.CheckState(cells)
+			}
+		}
+
 		draw.Draw(cells, square, window, program)
+
+		time.Sleep(time.Second/time.Duration(fps) - time.Since(t))
 	}
 }
 
@@ -47,6 +62,10 @@ func makeCells() [][]*cell.Cell {
 	for x := 0; x < rows; x++ {
 		for y := 0; y < columns; y++ {
 			c := newCell(x, y)
+
+			c.Alive = rand.Float64() < threshold
+			c.AliveNext = c.Alive
+
 			cells[x] = append(cells[x], c)
 		}
 	}

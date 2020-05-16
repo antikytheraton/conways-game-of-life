@@ -8,8 +8,8 @@ import (
 type Cell struct {
 	Drawable uint32
 
-	alive     bool
-	aliveNext bool
+	Alive     bool
+	AliveNext bool
 
 	X int
 	Y int
@@ -17,39 +17,42 @@ type Cell struct {
 
 // Draw function to self draw individual cell instance
 func (c *Cell) Draw(square []float32) {
+	if !c.Alive {
+		return
+	}
 	gl.BindVertexArray(c.Drawable)
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(square)/3))
 }
 
 // CheckState determines the state of the cell for the next tick of the game
 func (c *Cell) CheckState(cells [][]*Cell) {
-	c.alive = c.aliveNext
-	c.aliveNext = c.alive
+	c.Alive = c.AliveNext
+	c.AliveNext = c.Alive
 
 	liveCount := c.LiveNeighbours(cells)
-	if c.alive {
+	if c.Alive {
 		// 1. Any live cell with fewer than two live neighbours dies,
 		// as if caused by underpopulation.
 		if liveCount < 2 {
-			c.aliveNext = false
+			c.AliveNext = false
 		}
 
 		// 2. Any live cell with two or three live neighbours lives on
 		// the next generation.
 		if liveCount == 2 || liveCount == 3 {
-			c.aliveNext = true
+			c.AliveNext = true
 		}
 
 		// 3. Any live cell with more than three live neighbours dies,
 		// as if by overpopulation.
 		if liveCount > 3 {
-			c.aliveNext = false
+			c.AliveNext = false
 		}
 	} else {
 		// 4. Any dead cell with exactly three live neighbours becomes a
 		// live cell, as if by reproduction.
 		if liveCount == 3 {
-			c.aliveNext = true
+			c.AliveNext = true
 		}
 	}
 }
@@ -58,7 +61,7 @@ func (c *Cell) CheckState(cells [][]*Cell) {
 func (c *Cell) LiveNeighbours(cells [][]*Cell) int {
 	var liveCount int
 	add := func(x, y int) {
-		// If we're at the edge, check the other side of the board
+		// // If we're at the edge, check the other side of the board
 		if x == len(cells) {
 			x = 0
 		} else if x == -1 {
@@ -70,7 +73,7 @@ func (c *Cell) LiveNeighbours(cells [][]*Cell) int {
 			y = len(cells[x]) - 1
 		}
 
-		if cells[x][y].alive {
+		if cells[x][y].Alive {
 			liveCount++
 		}
 	}
