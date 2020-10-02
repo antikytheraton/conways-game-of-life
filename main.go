@@ -64,7 +64,7 @@ func main() {
 }
 
 func makeCells() [][]*cell.Cell {
-	cells := make([][]*cell.Cell, rows, rows)
+	cells := make([][]*cell.Cell, rows)
 	for x := 0; x < rows; x++ {
 		for y := 0; y < columns; y++ {
 			c := newCell(x, y)
@@ -84,7 +84,7 @@ func newCell(x, y int) *cell.Cell {
 		triangle, square,
 	}
 	shape := shapes[rand.Intn((len(shapes)))]
-	points := make([]float32, len(shape), len(shape))
+	points := make([]float32, len(shape))
 	copy(points, shape)
 
 	for i := 0; i < len(points); i++ {
